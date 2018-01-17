@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright (c) 2011, Duane Merrill.  All rights reserved.
  * Copyright (c) 2011-2017, NVIDIA CORPORATION.  All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the NVIDIA CORPORATION nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,13 +33,15 @@
 
 #pragma once
 
-#include "specializations/block_reduce_raking.cuh"
-#include "specializations/block_reduce_raking_commutative_only.cuh"
-#include "specializations/block_reduce_warp_reductions.cuh"
-#include "../util_ptx.cuh"
-#include "../util_type.cuh"
-#include "../thread/thread_operators.cuh"
-#include "../util_namespace.cuh"
+// #include "specializations/block_reduce_raking.cuh"
+// #include "specializations/block_reduce_raking_commutative_only.cuh"
+// #include "specializations/block_reduce_warp_reductions.cuh"
+// #include "../util_ptx.cuh"
+// #include "../util_type.cuh"
+// #include "../thread/thread_operators.cuh"
+// #include "../util_namespace.cuh"
+
+#include "../tc_utils.cuh"
 
 /// Optional outer namespace(s)
 CUB_NS_PREFIX
@@ -86,7 +88,7 @@ enum BlockReduceAlgorithm
      *   higher than to BLOCK_REDUCE_WARP_REDUCTIONS and thus less-desirable
      *   when the GPU is under-occupied.
      */
-    BLOCK_REDUCE_RAKING_COMMUTATIVE_ONLY,
+    // BLOCK_REDUCE_RAKING_COMMUTATIVE_ONLY,
 
 
     /**
@@ -116,7 +118,7 @@ enum BlockReduceAlgorithm
      *   higher than to BLOCK_REDUCE_WARP_REDUCTIONS and thus less-desirable
      *   when the GPU is under-occupied.
      */
-    BLOCK_REDUCE_RAKING,
+    // BLOCK_REDUCE_RAKING,
 
 
     /**
@@ -234,15 +236,17 @@ private:
     };
 
     typedef BlockReduceWarpReductions<T, BLOCK_DIM_X, BLOCK_DIM_Y, BLOCK_DIM_Z, PTX_ARCH>           WarpReductions;
-    typedef BlockReduceRakingCommutativeOnly<T, BLOCK_DIM_X, BLOCK_DIM_Y, BLOCK_DIM_Z, PTX_ARCH>    RakingCommutativeOnly;
-    typedef BlockReduceRaking<T, BLOCK_DIM_X, BLOCK_DIM_Y, BLOCK_DIM_Z, PTX_ARCH>                   Raking;
+    // typedef BlockReduceRakingCommutativeOnly<T, BLOCK_DIM_X, BLOCK_DIM_Y, BLOCK_DIM_Z, PTX_ARCH>    RakingCommutativeOnly;
+    // typedef BlockReduceRaking<T, BLOCK_DIM_X, BLOCK_DIM_Y, BLOCK_DIM_Z, PTX_ARCH>                   Raking;
 
-    /// Internal specialization type
-    typedef typename If<(ALGORITHM == BLOCK_REDUCE_WARP_REDUCTIONS),
-        WarpReductions,
-        typename If<(ALGORITHM == BLOCK_REDUCE_RAKING_COMMUTATIVE_ONLY),
-            RakingCommutativeOnly,
-            Raking>::Type>::Type InternalBlockReduce;     // BlockReduceRaking
+    // /// Internal specialization type
+    // typedef typename If<(ALGORITHM == BLOCK_REDUCE_WARP_REDUCTIONS),
+    //     WarpReductions,
+    //     typename If<(ALGORITHM == BLOCK_REDUCE_RAKING_COMMUTATIVE_ONLY),
+    //         RakingCommutativeOnly,
+    //         Raking>::Type>::Type InternalBlockReduce;     // BlockReduceRaking
+
+    typedef WarpReductions InternalBlockReduce;
 
     /// Shared memory storage layout type for BlockReduce
     typedef typename InternalBlockReduce::TempStorage _TempStorage;
@@ -347,7 +351,7 @@ public:
     template <typename ReductionOp>
     __device__ __forceinline__ T Reduce(
         T               input,                      ///< [in] Calling thread's input
-        ReductionOp     reduction_op)               ///< [in] Binary reduction functor 
+        ReductionOp     reduction_op)               ///< [in] Binary reduction functor
     {
         return InternalBlockReduce(temp_storage).template Reduce<true>(input, BLOCK_THREADS, reduction_op);
     }
@@ -394,7 +398,7 @@ public:
         typename ReductionOp>
     __device__ __forceinline__ T Reduce(
         T               (&inputs)[ITEMS_PER_THREAD],    ///< [in] Calling thread's input segment
-        ReductionOp     reduction_op)                   ///< [in] Binary reduction functor 
+        ReductionOp     reduction_op)                   ///< [in] Binary reduction functor
     {
         // Reduce partials
         T partial = internal::ThreadReduce(inputs, reduction_op);
@@ -439,7 +443,7 @@ public:
     template <typename ReductionOp>
     __device__ __forceinline__ T Reduce(
         T                   input,                  ///< [in] Calling thread's input
-        ReductionOp         reduction_op,           ///< [in] Binary reduction functor 
+        ReductionOp         reduction_op,           ///< [in] Binary reduction functor
         int                 num_valid)              ///< [in] Number of threads containing valid elements (may be less than BLOCK_THREADS)
     {
         // Determine if we scan skip bounds checking
@@ -604,4 +608,3 @@ public:
 
 }               // CUB namespace
 CUB_NS_POSTFIX  // Optional outer namespace(s)
-
