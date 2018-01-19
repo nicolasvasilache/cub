@@ -83,7 +83,3 @@ template<typename _Tp>
 
 #include "warp/specializations/warp_reduce_shfl.cuh"
 #include "warp/specializations/warp_reduce_smem.cuh"
-
-// #include "block/specializations/block_reduce_raking.cuh"
-// #include "block/specializations/block_reduce_raking_commutative_only.cuh"
-#include "block/specializations/block_reduce_warp_reductions.cuh"
