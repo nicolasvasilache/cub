@@ -77,15 +77,26 @@ template<typename _Tp>
 #include "util_ptx.cuh"
 #include "thread/thread_operators.cuh"
 
-// #include "block/block_exchange.cuh"
 #include "thread/thread_load.cuh"
 #include "thread/thread_store.cuh"
+#include "thread/thread_scan.cuh"
 
 #include "warp/specializations/warp_reduce_shfl.cuh"
 #include "warp/specializations/warp_reduce_smem.cuh"
 #include "warp/warp_reduce.cuh"
 
+#include "warp/specializations/warp_scan_shfl.cuh"
+#include "warp/specializations/warp_scan_smem.cuh"
+#include "warp/warp_scan.cuh"
+
+// #include "block/block_exchange.cuh"
+#include "block/block_raking_layout.cuh"
+
 // #include "block/specializations/block_reduce_raking.cuh"
 // #include "block/specializations/block_reduce_raking_commutative_only.cuh"
 #include "block/specializations/block_reduce_warp_reductions.cuh"
 #include "block/block_reduce.cuh"
+
+#include "block/specializations/block_scan_raking.cuh"
+#include "block/specializations/block_scan_warp_scans.cuh"
+#include "block/block_scan.cuh"

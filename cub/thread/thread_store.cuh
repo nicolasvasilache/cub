@@ -352,9 +352,17 @@ __device__ __forceinline__ void ThreadStoreVolatilePtr(
     for (int i = 0; i < SHUFFLE_MULTIPLE; ++i)
         reinterpret_cast<ShuffleWord*>(words)[i] = reinterpret_cast<ShuffleWord*>(&val)[i];
 
+#ifndef NVRTC_CUB
     IterateThreadStore<0, VOLATILE_MULTIPLE>::template Dereference(
         reinterpret_cast<volatile VolatileWord*>(ptr),
         words);
+#else
+    // Fails for me, quickfix seems to do it
+    IterateThreadStore<0, VOLATILE_MULTIPLE>::Dereference(
+        reinterpret_cast<volatile VolatileWord*>(ptr),
+        words);
+#endif // NVRTC_CUB
+
 }
 
 
